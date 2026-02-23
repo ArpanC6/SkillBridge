@@ -1,24 +1,26 @@
 package com.skillbridge.notification;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
-@Component
+@RestController
+@RequestMapping("/api/notify")
 public class NotificationListener {
 
     @Autowired
     private EmailService emailService;
 
-    @KafkaListener(topics = "roadmap-generated", groupId = "notification-group")
-    public void handleRoadmapGenerated(String message) {
-        // message format: "email::roadmap"
-        String[] parts = message.split("::", 2);
-        if (parts.length == 2) {
-            String email = parts[0];
-            String roadmap = parts[1];
+    @PostMapping("/roadmap")
+    public ResponseEntity<String> handleRoadmapGenerated(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String roadmap = body.get("roadmap");
+        if (email != null && roadmap != null) {
             emailService.sendRoadmapEmail(email, roadmap);
             System.out.println("Email sent to: " + email);
+            return ResponseEntity.ok("Email sent");
         }
+        return ResponseEntity.badRequest().body("Missing email or roadmap");
     }
 }
