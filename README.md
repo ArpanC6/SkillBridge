@@ -7,13 +7,15 @@
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Apache Kafka](https://img.shields.io/badge/Apache_Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)
 
 <br/>
 
 SkillBridge is a career development platform that tells you exactly what skills you are missing, builds you a personalized AI learning roadmap, helps you write a professional resume, and connects you to real job opportunities — all in one place.
+
+**Live Demo → [skillbridge-production-24c4.up.railway.app](https://skillbridge-production-24c4.up.railway.app)**
 
 </div>
 
@@ -27,13 +29,13 @@ SkillBridge is a career development platform that tells you exactly what skills 
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white)
 ![Hibernate](https://img.shields.io/badge/Hibernate-59666C?style=flat-square&logo=hibernate&logoColor=white)
-![Apache Kafka](https://img.shields.io/badge/Apache_Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white)
-![Apache Camel](https://img.shields.io/badge/Apache_Camel-E6522C?style=flat-square&logo=apache&logoColor=white)
 
 **Database & Infrastructure**
 
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white)
+![Aiven](https://img.shields.io/badge/Aiven-FF3E00?style=flat-square&logo=aiven&logoColor=white)
 
 **Frontend**
 
@@ -42,10 +44,11 @@ SkillBridge is a career development platform that tells you exactly what skills 
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=chartdotjs&logoColor=white)
 
-**AI**
+**AI & Email**
 
 ![Groq](https://img.shields.io/badge/Groq_AI-F55036?style=flat-square&logo=groq&logoColor=white)
-![LLaMA](https://img.shields.io/badge/LLaMA_3.3_70B-0467DF?style=flat-square&logo=meta&logoColor=white)
+![LLaMA](https://img.shields.io/badge/LLaMA_3.1_8B-0467DF?style=flat-square&logo=meta&logoColor=white)
+![SendGrid](https://img.shields.io/badge/SendGrid-1A82E2?style=flat-square&logo=sendgrid&logoColor=white)
 
 ---
 
@@ -76,7 +79,7 @@ Search real jobs across LinkedIn, Naukri, Indeed, Glassdoor, and Wellfound filte
 A dedicated section for freshers to find internships across Internshala, LinkedIn, RemoteOK, Glassdoor, Naukri, and Wellfound — with filters for remote, hybrid, on-site, paid, and stipend.
 
 **Email Notification**
-After a roadmap is generated, a copy is automatically delivered to the user's inbox. The user service publishes a Kafka event and the notification service consumes it and sends the email via JavaMail.
+After a roadmap is generated, a copy is automatically delivered to the user's inbox via SendGrid's HTTP API.
 
 **Dark / Light Mode**
 Full theme toggle across every section of the platform.
@@ -85,9 +88,11 @@ Full theme toggle across every section of the platform.
 
 ## Architecture
 
-The platform is split into five Spring Boot services. The user-service handles everything related to authentication — registration, login, JWT — and also serves the frontend since the HTML is bundled as a static resource inside it. The ai-service is where all the AI logic lives: it calls the Groq API to generate roadmaps, builds PDF resumes, and returns AI suggestions for resume content. The job-service manages job trend data. The notification-service listens to Kafka and sends emails whenever a user registers or a roadmap is generated. The esb-service uses Apache Camel for event routing between services.
+The platform is built as a microservices system with four independent Spring Boot services communicating over HTTP REST calls.
 
-MySQL and Kafka both run as Docker containers alongside the five services. MySQL is configured with a health check so the dependent services only start once the database is fully ready — this was necessary to avoid connection failures on startup. Kafka runs in KRaft mode which means there is no Zookeeper involved, keeping the setup lighter.
+The **user-service** handles everything related to authentication — registration, login, JWT token generation and validation — and also serves the frontend since the HTML is bundled as a static resource inside it. The **ai-service** contains all the AI logic: it calls the Groq API to generate roadmaps, analyzes skill gaps, builds PDF resumes, and returns AI-written resume content. After generating a roadmap, the ai-service makes an HTTP POST call to the notification-service. The **notification-service** receives the roadmap payload and delivers it to the user's email via SendGrid's Web API. The **job-service** manages job trend data and powers the job and internship search features.
+
+All four services connect to a shared MySQL database hosted on Aiven Cloud. The entire platform is deployed on Railway with each service running as its own container. Service-to-service communication happens directly over Railway's internal network using private URLs, keeping inter-service calls fast and secure.
 
 ---
 
@@ -107,8 +112,8 @@ Fill in your `.env`:
 DB_USER=root
 DB_PASS=your_mysql_password
 GROQ_API_KEY=your_groq_api_key
-MAIL_USER=your_email@gmail.com
-MAIL_PASS=your_gmail_app_password
+SENDGRID_API_KEY=your_sendgrid_api_key
+MAIL_FROM=your_verified_sender@email.com
 ```
 
 ```bash
@@ -119,13 +124,13 @@ Open `http://localhost:8081`
 
 **Getting API keys:**
 - Groq API key → [console.groq.com](https://console.groq.com) (free)
-- Gmail App Password → Gmail Settings → Security → App Passwords
+- SendGrid API key → [app.sendgrid.com](https://app.sendgrid.com) (free, 100 emails/day)
 
-
+---
 
 ## Project Structure
 
-The repository has one folder per service. Each service is a standalone Spring Boot application with its own `pom.xml`, `Dockerfile`, and `src` directory. The `docker-compose.yml` at the root ties everything together — it defines all seven containers (five services, MySQL, and Kafka), sets the environment variables, and manages the startup order using health checks and `depends_on`. The `.env.example` file shows exactly which environment variables need to be set without exposing any actual credentials.
+The repository has one folder per service. Each service is a standalone Spring Boot application with its own `pom.xml`, `Dockerfile`, and `src` directory. The `docker-compose.yml` at the root ties everything together — it defines all five containers (four services plus MySQL), sets the environment variables, and manages startup order using health checks and `depends_on`. The `.env.example` file shows exactly which environment variables need to be set without exposing any actual credentials.
 
 ---
 
