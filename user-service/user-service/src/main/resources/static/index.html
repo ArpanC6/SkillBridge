@@ -680,7 +680,7 @@
     async function register(){
       const data={name:document.getElementById('rn').value,email:document.getElementById('re').value,password:document.getElementById('rp').value,currentSkills:document.getElementById('rs').value,targetRole:document.getElementById('rr').value,educationLevel:document.getElementById('red').value,country:document.getElementById('rc').value};
       try{
-        const res=await fetch('http://localhost:8081/api/users/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+        const res=await fetch('https://skillbridge-production-24c4.up.railway.app/api/users/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
         if(res.ok){alert2('reg-alert','Account created! Redirecting...','ok');setTimeout(()=>show('login'),2000);}
         else alert2('reg-alert','Registration failed. Email may already be in use.','er');
       }catch(e){alert2('reg-alert','Could not connect to server.','er');}
@@ -690,7 +690,7 @@
     async function login(){
       const email=document.getElementById('le').value;
       try{
-        const res=await fetch('http://localhost:8081/api/users/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:document.getElementById('lp').value})});
+        const res=await fetch('https://skillbridge-production-24c4.up.railway.app/api/users/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:document.getElementById('lp').value})});
         if(res.ok){
           token=await res.text();
           userEmail=email; userFullName=email.split('@')[0]; userName=userFullName;
@@ -719,7 +719,7 @@
       document.getElementById('chart-section').style.display='none';
       document.getElementById('progress-section').style.display='none';
       try{
-        const res=await fetch('http://localhost:8083/api/ai/roadmap?email='+encodeURIComponent(userEmail)+'&currentSkills='+encodeURIComponent(skills)+'&targetRole='+encodeURIComponent(role),{method:'POST',headers:{'Authorization':'Bearer '+token}});
+        const res=await fetch('https://elegant-fascination-production.up.railway.app/api/ai/roadmap?email='+encodeURIComponent(userEmail)+'&currentSkills='+encodeURIComponent(skills)+'&targetRole='+encodeURIComponent(role),{method:'POST',headers:{'Authorization':'Bearer '+token}});
         if(res.ok){
           const data=await res.json();
           lastRoadmap=data.roadmapContent;
@@ -876,7 +876,7 @@
       const exp=[...document.querySelectorAll('[id^="exp-title-"]')].map(e=>e.value).join(', ');
       btn.textContent='Getting suggestions...'; btn.disabled=true;
       try{
-        const res=await fetch('http://localhost:8083/api/resume/suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skills,targetRole:role,experience:exp})});
+        const res=await fetch('https://elegant-fascination-production.up.railway.app/api/resume/suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skills,targetRole:role,experience:exp})});
         if(res.ok){
           const data=await res.json();
           suggestions=data;
@@ -1034,7 +1034,7 @@
         roadmap:lastRoadmap
       };
       try{
-        const res=await fetch('http://localhost:8083/api/resume/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        const res=await fetch('https://elegant-fascination-production.up.railway.app/api/resume/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
         if(res.ok){
           const blob=await res.blob();
           const url=URL.createObjectURL(blob);
