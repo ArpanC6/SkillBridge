@@ -15,7 +15,7 @@
 
 SkillBridge is a career development platform that tells you exactly what skills you are missing, builds you a personalized AI learning roadmap, helps you write a professional resume, and connects you to real job opportunities — all in one place.
 
-**Live Demo → [skillbridge-production-24c4.up.railway.app](https://skillbridge-production-24c4.up.railway.app)**
+**Live Demo → [skillbridge-production-24c4.up.railway.app](https://skillbridge-production-fb0a.up.railway.app/)**
 
 </div>
 
