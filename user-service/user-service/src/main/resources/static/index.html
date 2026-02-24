@@ -680,7 +680,7 @@
     async function register(){
       const data={name:document.getElementById('rn').value,email:document.getElementById('re').value,password:document.getElementById('rp').value,currentSkills:document.getElementById('rs').value,targetRole:document.getElementById('rr').value,educationLevel:document.getElementById('red').value,country:document.getElementById('rc').value};
       try{
-        const res=await fetch('https://skillbridge-production-24c4.up.railway.app/api/users/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+        const res=await fetch('https://skillbridge-production-fb0a.up.railway.app/api/users/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
         if(res.ok){alert2('reg-alert','Account created! Redirecting...','ok');setTimeout(()=>show('login'),2000);}
         else alert2('reg-alert','Registration failed. Email may already be in use.','er');
       }catch(e){alert2('reg-alert','Could not connect to server.','er');}
@@ -690,7 +690,7 @@
     async function login(){
       const email=document.getElementById('le').value;
       try{
-        const res=await fetch('https://skillbridge-production-24c4.up.railway.app/api/users/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:document.getElementById('lp').value})});
+        const res=await fetch('https://skillbridge-production-fb0a.up.railway.app/api/users/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:document.getElementById('lp').value})});
         if(res.ok){
           token=await res.text();
           userEmail=email; userFullName=email.split('@')[0]; userName=userFullName;
