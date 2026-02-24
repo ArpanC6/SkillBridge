@@ -16,7 +16,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final KafkaProducerService kafkaProducerService;
 
     public User register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -32,14 +31,7 @@ public class UserService {
         user.setEducationLevel(request.getEducationLevel());
         user.setCountry(request.getCountry());
 
-        User savedUser = userRepository.save(user);
-
-        // Kafka Event Send
-        kafkaProducerService.sendUserEvent(
-                "NEW_USER:" + savedUser.getEmail() + ":" + savedUser.getTargetRole()
-        );
-
-        return savedUser;
+        return userRepository.save(user);
     }
 
     public String login(LoginRequest request) {
